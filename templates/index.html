@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UPI Anomaly Explainer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #00d4aa;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    .upload-box {
+      background: #1a1d27;
+      border: 2px dashed #2e3347;
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .upload-box:hover { border-color: #00d4aa; }
+
+    .upload-box input[type="file"] { display: none; }
+
+    .upload-label {
+      display: inline-block;
+      cursor: pointer;
+      background: #00d4aa;
+      color: #0f1117;
+      font-weight: 600;
+      padding: 10px 24px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+
+    .upload-label:hover { background: #00b894; }
+
+    #file-name {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    #analyze-btn {
+      width: 100%;
+      padding: 14px;
+      background: #00d4aa;
+      color: #0f1117;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 32px;
+    }
+
+    #analyze-btn:hover { background: #00b894; }
+    #analyze-btn:disabled { background: #2e3347; color: #555; cursor: not-allowed; }
+
+    #status {
+      text-align: center;
+      color: #00d4aa;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      min-height: 20px;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat {
+      flex: 1;
+      background: #1a1d27;
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .stat .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #00d4aa;
+    }
+
+    .stat .label {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .section {
+      background: #1a1d27;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .badge-analyst  { background: #1e3a5f; color: #5ba3f5; }
+    .badge-explainer { background: #1e4a3a; color: #00d4aa; }
+    .badge-redteam  { background: #4a1e1e; color: #f56565; }
+
+    .output-text {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: #ccc;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #results { display: none; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #444;
+      border-top-color: #00d4aa;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>⚡ UPI Anomaly Explainer</h1>
+  <p class="subtitle">Multi-agent fraud detection powered by CrewAI + Groq LLaMA 3</p>
+
+  <div class="upload-box">
+    <label class="upload-label" for="csv-input">Choose CSV File</label>
+    <input type="file" id="csv-input" accept=".csv" />
+    <div id="file-name">No file selected</div>
+  </div>
+
+  <button id="analyze-btn" disabled>Analyze Transactions</button>
+  <div id="status"></div>
+
+  <div id="results">
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="number" id="stat-total">—</div>
+        <div class="label">Total Transactions</div>
+      </div>
+      <div class="stat">
+        <div class="number" id="stat-flagged">—</div>
+        <div class="label">Flagged</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔍 Analyst <span class="badge badge-analyst">Risk Assessment</span></h2>
+      <pre class="output-text" id="out-analyst"></pre>
+    </div>
+
+    <div class="section">
+      <h2>📋 Explainer <span class="badge badge-explainer">Customer Summary</span></h2>
+      <pre class="output-text" id="out-explainer"></pre>
+    </div>
+
+    <div class="section">
+      <h2>🛡️ Red Team <span class="badge badge-redteam">Adversarial Review</span></h2>
+      <pre class="output-text" id="out-redteam"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById('csv-input');
+  const btn = document.getElementById('analyze-btn');
+  const fileName = document.getElementById('file-name');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+
+  input.addEventListener('change', () => {
+    if (input.files.length > 0) {
+      fileName.textContent = input.files[0].name;
+      btn.disabled = false;
+    }
+  });
+
+  btn.addEventListener('click', async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    btn.disabled = true;
+    results.style.display = 'none';
+    status.innerHTML = '<span class="spinner"></span>Running agents — this takes ~60 seconds...';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/analyze', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (data.error) {
+        status.textContent = '❌ Error: ' + data.error;
+        btn.disabled = false;
+        return;
+      }
+
+      document.getElementById('stat-total').textContent = data.total_transactions;
+      document.getElementById('stat-flagged').textContent = data.flagged_count;
+      document.getElementById('out-analyst').textContent = data.analyst;
+      document.getElementById('out-explainer').textContent = data.explainer;
+      document.getElementById('out-redteam').textContent = data.redteam;
+
+      results.style.display = 'block';
+      status.textContent = '✅ Analysis complete';
+    } catch (err) {
+      status.textContent = '❌ Request failed: ' + err.message;
+      btn.disabled = false;
+    }
+
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>

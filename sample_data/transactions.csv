@@ -1,0 +1,16 @@
+txn_id,timestamp,sender_upi,receiver_upi,amount,device_id,location
+TXN001,2024-01-15 02:34:11,user1@okaxis,merchant1@okhdfc,150.00,DEV_A1,Mumbai
+TXN002,2024-01-15 02:35:45,user1@okaxis,merchant2@oksbi,200.00,DEV_A1,Mumbai
+TXN003,2024-01-15 02:36:20,user1@okaxis,merchant3@okicici,175.00,DEV_A1,Mumbai
+TXN004,2024-01-15 02:37:01,user1@okaxis,merchant4@okaxis,190.00,DEV_A1,Mumbai
+TXN005,2024-01-15 09:15:00,user2@oksbi,grocery@okhdfc,450.00,DEV_B2,Delhi
+TXN006,2024-01-15 14:22:30,user3@okhdfc,friend1@oksbi,1200.00,DEV_C3,Bangalore
+TXN007,2024-01-15 03:10:05,user4@okicici,unknown99@okaxis,85000.00,DEV_D4,Chennai
+TXN008,2024-01-15 11:45:00,user5@oksbi,shop@okhdfc,299.00,DEV_E5,Hyderabad
+TXN009,2024-01-15 03:22:17,user4@okicici,unknown88@okaxis,72000.00,DEV_D4,Chennai
+TXN010,2024-01-15 16:30:00,user6@okaxis,restaurant@oksbi,650.00,DEV_F6,Pune
+TXN011,2024-01-15 03:45:58,user4@okicici,unknown77@okaxis,91000.00,DEV_D4,Chennai
+TXN012,2024-01-15 23:58:00,user7@okhdfc,randomupi@okaxis,15000.00,DEV_G7,Mumbai
+TXN013,2024-01-15 10:00:00,user8@oksbi,salary@okhdfc,50000.00,DEV_H8,Delhi
+TXN014,2024-01-15 02:15:33,user1@okaxis,merchant5@oksbi,160.00,DEV_A1,Mumbai
+TXN015,2024-01-15 13:20:00,user9@okaxis,ecommerce@okicici,3200.00,DEV_I9,Bangalore
